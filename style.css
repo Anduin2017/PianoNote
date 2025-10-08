@@ -12,16 +12,41 @@ body {
     user-select: none; /* 禁止文本选择，提升体验 */
 }
 
-/* 圆圈容器 */
-.circle-container {
-    position: relative;
-    width: 450px;
-    height: 450px;
-    margin: 20px;
+/* ================================== */
+/* 新增：主容器和圈组件样式          */
+/* ================================== */
+.main-container {
+    display: flex;
+    flex-wrap: wrap; /* 在小屏幕上允许换行 */
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    width: 100%;
+    padding: 20px 0;
 }
 
-/* 外圈和内圈的通用样式 */
-#outer-circle, #inner-circle {
+.circle-widget {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.circle-widget h2 {
+    color: #34495e;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+/* 圆圈容器 (尺寸已修改) */
+.circle-container {
+    position: relative;
+    width: 400px; /* 稍微缩小尺寸以容纳两个 */
+    height: 400px;
+    margin: 10px;
+}
+
+/* 外圈和内圈的通用样式 (ID选择器已改为类选择器) */
+.outer-circle, .inner-circle {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -29,8 +54,8 @@ body {
     transform: translate(-50%, -50%);
 }
 
-/* 外圈样式 */
-#outer-circle {
+/* 外圈样式 (ID选择器已改为类选择器) */
+.outer-circle {
     width: 100%;
     height: 100%;
     background-color: #ffffff;
@@ -72,8 +97,8 @@ body {
     border-color: #000;
 }
 
-/* 内圈样式 */
-#inner-circle {
+/* 内圈样式 (ID选择器已改为类选择器) */
+.inner-circle {
     width: 60%;
     height: 60%;
     background-color: #e9eef2;
@@ -100,8 +125,8 @@ body {
     box-shadow: 0 3px 6px rgba(0,0,0,0.2);
 }
 
-/* 中央调性显示 */
-#current-key-display {
+/* 中央调性显示 (ID选择器已改为类选择器) */
+.current-key-display {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -109,14 +134,14 @@ body {
     text-align: center;
 }
 
-#key-name {
+.key-name {
     font-size: 3.5em;
     font-weight: bold;
     display: block;
     color: #2c3e50;
 }
 
-#key-mode {
+.key-mode {
     font-size: 1.2em;
     color: #7f8c8d;
 }
@@ -326,8 +351,11 @@ button:active {
     background-color: #000;
 }
 
+/* 5. 谱号和升降号的样式 */
 .clef, .accidental {
-    font-family: 'Bravura', serif !important; /* <-- 在末尾添加 !important */
+    font-family: 'Bravura', serif !important;
     position: absolute;
     line-height: 1;
+    /* 新增下面这一行，对所有升降号进行垂直矫正 */
+    transform: translateY(0.65em);
 }

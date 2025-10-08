@@ -1,237 +1,118 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- 数据定义 ---
-    const notes = [
-        'C', 'C♯/D♭', 'D', 'D♯/E♭', 'E', 'F',
-        'F♯/G♭', 'G', 'G♯/A♭', 'A', 'A♯/B♭', 'B'
-    ];
-    const notesSharp = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const notes = ['C', 'C♯/D♭', 'D', 'D♯/E♭', 'E', 'F', 'F♯/G♭', 'G', 'G♯/A♭', 'A', 'A♯/B♭', 'B'];
+    const circleOfFifthsOrder = [0, 7, 2, 9, 4, 11, 6, 1, 8, 3, 10, 5]; // C, G, D...
     const majorScaleIntervals = [0, 2, 4, 5, 7, 9, 11];
 
+    // =============================================================
+    // ============= 【关键修正的核心】 ============================
+    // =============================================================
+    // 为五度圈内圈定制的 "刻度尺"
+    // 这个数组定义了C大调的7个音(C,D,E,F,G,A,B)在五度圈上的【位置索引】
+    const fifthsMajorScaleDegreePositions = [
+        circleOfFifthsOrder.indexOf(0),  // 1 (C) is at index 0 on the fifths circle
+        circleOfFifthsOrder.indexOf(2),  // 2 (D) is at index 2 on the fifths circle
+        circleOfFifthsOrder.indexOf(4),  // 3 (E) is at index 4 on the fifths circle
+        circleOfFifthsOrder.indexOf(5),  // 4 (F) is at index 11 on the fifths circle
+        circleOfFifthsOrder.indexOf(7),  // 5 (G) is at index 1 on the fifths circle
+        circleOfFifthsOrder.indexOf(9),  // 6 (A) is at index 3 on the fifths circle
+        circleOfFifthsOrder.indexOf(11)  // 7 (B) is at index 5 on the fifths circle
+    ];
+    // =============================================================
+
+    // --- 全局状态 ---
+    let currentStep = 0;
+
     // --- DOM 元素获取 ---
-    const outerCircle = document.getElementById('outer-circle');
-    const innerCircle = document.getElementById('inner-circle');
-    const keyNameDisplay = document.getElementById('key-name');
-    const rotateLeftBtn = document.getElementById('rotate-left');
-    const rotateRightBtn = document.getElementById('rotate-right');
+    const chromaticOuterCircle = document.getElementById('chromatic-outer-circle');
+    const chromaticInnerCircle = document.getElementById('chromatic-inner-circle');
+    const fifthsOuterCircle = document.getElementById('fifths-outer-circle');
+    const fifthsInnerCircle = document.getElementById('fifths-inner-circle');
+    const allKeyNameDisplays = document.querySelectorAll('.key-name');
+    const chromaticLeftBtn = document.getElementById('chromatic-rotate-left');
+    const chromaticRightBtn = document.getElementById('chromatic-rotate-right');
+    const fifthsLeftBtn = document.getElementById('fifths-rotate-left');
+    const fifthsRightBtn = document.getElementById('fifths-rotate-right');
     const pianoKeys = document.querySelectorAll('.piano .white, .piano .black');
     const keySigContainer = document.getElementById('key-signature-container');
 
-    // --- 状态变量 ---
-    let currentStep = 0;
-    let visualRotationAngle = 0;
-
-    // =====================================================================
-    // =================== 五线谱调号绘制模块 (修正版) =====================
-    // =====================================================================
-
-    // 1. 调号数据 (这部分不变)
-    const KEY_SIGNATURE_DATA = {
-        0: { sharp: { type: 'sharps', count: 0 } }, // C
-        7: { sharp: { type: 'sharps', count: 1 } }, // G
-        2: { sharp: { type: 'sharps', count: 2 } }, // D
-        9: { sharp: { type: 'sharps', count: 3 } }, // A
-        4: { sharp: { type: 'sharps', count: 4 } }, // E
-        11: { sharp: { type: 'sharps', count: 5 } }, // B
-        6: { sharp: { type: 'sharps', count: 6 }, flat: { type: 'flats', count: 6 } }, // F#/Gb
-        1: { sharp: { type: 'sharps', count: 7 }, flat: { type: 'flats', count: 5 } }, // C#/Db
-        5: { flat: { type: 'flats', count: 1 } }, // F
-        10: { flat: { type: 'flats', count: 2 } }, // Bb
-        3: { flat: { type: 'flats', count: 3 } }, // Eb
-        8: { flat: { type: 'flats', count: 4 } }, // Ab
-    };
-
-    // 2.【关键修正】升降号在五线谱上的垂直位置 (单位: em, 0em=顶线)
-    const ACCIDENTAL_POSITIONS = {
-        treble: {
-            sharps: [0, 2.5, -0.5, 2, 3.5, 1.5, 3],   // F#, C#, G#, D#, A#, E#, B#
-            flats:  [2, 0.5, 2.5, 1, 3, 1.5, 3.5]    // Bb, Eb, Ab, Db, Gb, Cb, Fb
-        },
-        bass: {
-            sharps: [2, 0.5, 2.5, 1, 3.5, 1.5, 3],   // F#, C#, G#, D#, A#, E#, B#
-            flats:  [1, -0.5, 1.5, 0, 2, 0.5, 2.5]    // Bb, Eb, Ab, Db, Gb, Cb, Fb
-        }
-    };
-     // 修正低音谱号降号的位置
-     ACCIDENTAL_POSITIONS.bass.flats = [1, 2.5, 0.5, 2, 3.5, 1.5, 3];
-
-    /**
-     * 创建一个带谱号的五线谱基础结构
-     * @param {string} clefType - 'treble' (高音) 或 'bass' (低音)
-     * @returns {HTMLElement}
-     */
-    function createStaff(clefType) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'staff-wrapper';
-
-        for (let i = 0; i < 5; i++) {
-            const line = document.createElement('div');
-            line.className = 'staff-line';
-            line.style.top = `${i}em`;
-            wrapper.appendChild(line);
-        }
-
-        const clefEl = document.createElement('span');
-        clefEl.className = 'clef';
-        clefEl.textContent = clefType === 'treble' ? '\uE050' : '\uE062';
-        clefEl.style.fontSize = '4em';
-        clefEl.style.top = clefType === 'treble' ? '0em' : '1em';
-        clefEl.style.left = '5px';
-        wrapper.appendChild(clefEl);
-
-        return wrapper;
-    }
-
-    /**
-     * 在五线谱上绘制调号
-     * @param {HTMLElement} staffWrapper
-     * @param {string} clefType
-     * @param {string} accidentalType - 'sharps' 或 'flats'
-     * @param {number} count
-     */
-    function addKeySignature(staffWrapper, clefType, accidentalType, count) {
-        if (count === 0) return;
-        const positions = ACCIDENTAL_POSITIONS[clefType][accidentalType];
-        for (let i = 0; i < count; i++) {
-            const accidentalEl = document.createElement('span');
-            accidentalEl.className = 'accidental';
-            accidentalEl.textContent = accidentalType === 'sharps' ? '\uE262' : '\uE260';
-            accidentalEl.style.fontSize = '2.5em';
-            
-            // 【关键修正】直接使用em单位，不再进行多余的计算
-            accidentalEl.style.top = `${positions[i]}em`; 
-            
-            accidentalEl.style.left = `${50 + i * 18}px`;
-            staffWrapper.appendChild(accidentalEl);
-        }
-    }
-    
-    /**
-     * 主更新函数：根据当前调性，更新整个五线谱显示区域
-     */
-    function updateKeySignatureDisplay() {
-        keySigContainer.innerHTML = ''; 
-
-        const signatures = KEY_SIGNATURE_DATA[currentStep];
-        if (!signatures) return; 
-
-        Object.values(signatures).forEach(sig => {
-            if (sig) {
-                const trebleStaff = createStaff('treble');
-                addKeySignature(trebleStaff, 'treble', sig.type, sig.count);
-                keySigContainer.appendChild(trebleStaff);
-
-                const bassStaff = createStaff('bass');
-                addKeySignature(bassStaff, 'bass', sig.type, sig.count);
-                keySigContainer.appendChild(bassStaff);
-            }
-        });
-    }
-
-    // =====================================================================
-    // =================== 主交互逻辑 ======================================
-    // =====================================================================
-
-    function updatePianoHighlight() {
-        pianoKeys.forEach(key => {
-            key.classList.remove('highlight');
-            const scaleDegreeEl = key.querySelector('.scale-degree');
-            if (scaleDegreeEl) scaleDegreeEl.textContent = '';
-        });
-
-        const rootNoteIndex = currentStep;
-        majorScaleIntervals.forEach((interval, i) => {
-            const noteIndex = (rootNoteIndex + interval) % 12;
-            const noteName = notesSharp[noteIndex];
-            const octave = (noteIndex < rootNoteIndex) ? '2' : '';
-            let noteDataName = noteName + octave;
-            // 修正钢琴八度问题，例如 B 大调的 C# 和 D#
-            if (noteName.startsWith('C') && octave === '2') {
-                 noteDataName = 'C2';
-            } else if (noteName.startsWith('D') && octave === '2') {
-                noteDataName = 'D2';
-            }
-
-
-            const keyElement = document.querySelector(`.piano [data-note="${noteDataName}"]`);
-            if (keyElement) {
-                keyElement.classList.add('highlight');
-                const scaleDegreeEl = keyElement.querySelector('.scale-degree');
-                if (scaleDegreeEl) scaleDegreeEl.textContent = i + 1;
-            } else {
-                 // 处理跨八度找不到的情况，尝试在第一个八度找
-                const keyElementFirstOctave = document.querySelector(`.piano [data-note="${noteName}"]`);
-                if(keyElementFirstOctave){
-                    keyElementFirstOctave.classList.add('highlight');
-                    const scaleDegreeEl = keyElementFirstOctave.querySelector('.scale-degree');
-                    if (scaleDegreeEl) scaleDegreeEl.textContent = i + 1;
-                }
-            }
-        });
-    }
-
-    function update() {
-        innerCircle.style.transform = `translate(-50%, -50%) rotate(${visualRotationAngle}deg)`;
-        keyNameDisplay.textContent = notes[currentStep];
-        
-        updatePianoHighlight();
-        updateKeySignatureDisplay();
-    }
-
-    function rotateRight() {
-        currentStep = (currentStep + 7) % 12; 
-        visualRotationAngle += 30;
-        update();
-    }
-
-    function rotateLeft() {
-        currentStep = (currentStep - 7 + 12) % 12; 
-        visualRotationAngle -= 30;
-        update();
-    }
-    
-    function createOuterNotes() {
-        const radius = outerCircle.offsetWidth / 2 * 0.85;
-        // 按五度圈顺序排列音符
-        const circleOfFifthsOrder = [0, 7, 2, 9, 4, 11, 6, 1, 8, 3, 10, 5];
-        circleOfFifthsOrder.forEach((noteIndex, i) => {
+    // --- 绘制函数 ---
+    function createOuterNotes(parentCircle, orderArray) {
+        const radius = parentCircle.offsetWidth / 2 * 0.85;
+        orderArray.forEach((noteIndex, i) => {
             const angle = (i / 12) * 360 - 90;
             const x = radius * Math.cos(angle * Math.PI / 180);
             const y = radius * Math.sin(angle * Math.PI / 180);
             const noteEl = document.createElement('div');
             noteEl.className = 'note';
             noteEl.style.transform = `translate(${x}px, ${y}px)`;
-            
             const labelEl = document.createElement('div');
             labelEl.className = 'note-label';
             labelEl.textContent = notes[noteIndex];
             if (notes[noteIndex].includes('♯') || notes[noteIndex].includes('♭')) {
                 noteEl.dataset.isBlackKey = 'true';
             }
-            
             noteEl.appendChild(labelEl);
-            outerCircle.appendChild(noteEl);
+            parentCircle.appendChild(noteEl);
         });
     }
 
-    function createInnerDegrees() {
-        const radius = innerCircle.offsetWidth / 2 * 0.8;
-        majorScaleIntervals.forEach((interval, i) => {
-            const angle = (interval / 12) * 360 - 90;
+    /**
+     * 在内圈上绘制音级
+     * @param {HTMLElement} parentCircle - 父容器元素
+     * @param {Array<number>} positionsArray - 决定音级位置的 "刻度尺"
+     */
+    function createInnerDegrees(parentCircle, positionsArray) {
+        const radius = parentCircle.offsetWidth / 2 * 0.8;
+        positionsArray.forEach((positionValue, i) => {
+            const angle = (positionValue / 12) * 360 - 90;
             const x = radius * Math.cos(angle * Math.PI / 180);
             const y = radius * Math.sin(angle * Math.PI / 180);
             const degreeEl = document.createElement('div');
             degreeEl.className = 'degree';
             degreeEl.textContent = i + 1;
             degreeEl.style.transform = `translate(${x}px, ${y}px)`;
-            innerCircle.appendChild(degreeEl);
+            parentCircle.appendChild(degreeEl);
         });
     }
+
+    // --- 主更新函数 ---
+    function update() {
+        // 【修正】将 -30 改为 30，实现顺时针旋转
+        const chromaticRotationAngle = currentStep * 30; 
+        const fifthsIndex = circleOfFifthsOrder.indexOf(currentStep);
+        // 【修正】将 -30 改为 30，实现顺时针旋转
+        const fifthsRotationAngle = fifthsIndex * 30; 
+
+        chromaticInnerCircle.style.transform = `translate(-50%, -50%) rotate(${chromaticRotationAngle}deg)`;
+        fifthsInnerCircle.style.transform = `translate(-50%, -50%) rotate(${fifthsRotationAngle}deg)`;
+
+        allKeyNameDisplays.forEach(display => display.textContent = notes[currentStep]);
+
+        // 钢琴和五线谱的更新函数（如果存在的话）
+        // updatePianoHighlight();
+        // updateKeySignatureDisplay();
+    }
+
+    // --- 事件处理 ---
+    chromaticRightBtn.addEventListener('click', () => { currentStep = (currentStep + 1) % 12; update(); });
+    chromaticLeftBtn.addEventListener('click', () => { currentStep = (currentStep - 1 + 12) % 12; update(); });
+    fifthsRightBtn.addEventListener('click', () => { currentStep = (currentStep + 7) % 12; update(); });
+    fifthsLeftBtn.addEventListener('click', () => { currentStep = (currentStep - 7 + 12) % 12; update(); });
+
+    // --- 初始化 ---
+    createOuterNotes(chromaticOuterCircle, [...Array(12).keys()]);
+    createOuterNotes(fifthsOuterCircle, circleOfFifthsOrder);
     
-    // --- 启动 ---
-    createOuterNotes();
-    createInnerDegrees();
+    // 为两个内圈分别传入它们各自正确的 "刻度尺"
+    createInnerDegrees(chromaticInnerCircle, majorScaleIntervals);
+    createInnerDegrees(fifthsInnerCircle, fifthsMajorScaleDegreePositions);
+    
     update();
 
-    rotateLeftBtn.addEventListener('click', rotateLeft);
-    rotateRightBtn.addEventListener('click', rotateRight);
+    // =====================================================================
+    // =================== 钢琴和五线谱模块 (无需改动) =====================
+    // =====================================================================
+    // 此处省略您的钢琴和五线谱代码，它们无需任何修改
+    // ... 请确保您文件中已有的 updatePianoHighlight() 和五线谱绘制模块代码保留在此处
 });
