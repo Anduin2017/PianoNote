@@ -1,28 +1,33 @@
-/* 全局样式 */
+/* ================================== */
+/* 全局与基础样式            */
+/* ================================== */
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     display: flex;
-    justify-content: center;
+    flex-direction: column; /* 默认垂直布局 */
     align-items: center;
-    flex-direction: column;
     min-height: 100vh;
     background-color: #f0f2f5;
     color: #333;
     margin: 0;
-    user-select: none; /* 禁止文本选择，提升体验 */
+    padding: 20px 10px; /* 为小屏幕增加一些边距 */
+    box-sizing: border-box;
+    user-select: none;
 }
 
 /* ================================== */
-/* 新增：主容器和圈组件样式          */
+/* 主要容器布局 (移动端)       */
 /* ================================== */
-.main-container {
+.main-container, .bottom-container {
     display: flex;
-    flex-wrap: wrap; /* 在小屏幕上允许换行 */
-    justify-content: center;
-    align-items: flex-start;
-    gap: 40px;
+    flex-direction: column; /* 移动端默认垂直排列 */
+    align-items: center;
+    gap: 30px;
     width: 100%;
-    padding: 20px 0;
+}
+
+.bottom-container {
+    margin-top: 30px;
 }
 
 .circle-widget {
@@ -34,18 +39,22 @@ body {
 .circle-widget h2 {
     color: #34495e;
     font-weight: 600;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
+    font-size: 1.3em;
 }
 
-/* 圆圈容器 (尺寸已修改) */
+/* ================================== */
+/* 组件样式 (移动端尺寸)        */
+/* ================================== */
+
+/* --- 音阶圈 (缩小) --- */
 .circle-container {
     position: relative;
-    width: 400px; /* 稍微缩小尺寸以容纳两个 */
-    height: 400px;
+    width: clamp(280px, 85vw, 360px); /* 响应式宽度：最小280px, 最大360px */
+    aspect-ratio: 1 / 1; /* 保持宽高比为1:1，自动计算高度 */
     margin: 10px;
 }
 
-/* 外圈和内圈的通用样式 (ID选择器已改为类选择器) */
 .outer-circle, .inner-circle {
     position: absolute;
     top: 50%;
@@ -54,78 +63,51 @@ body {
     transform: translate(-50%, -50%);
 }
 
-/* 外圈样式 (ID选择器已改为类选择器) */
 .outer-circle {
     width: 100%;
     height: 100%;
     background-color: #ffffff;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     border: 1px solid #ddd;
 }
 
-/* 外圈上的音符标记 */
 .note {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 60px;
-    height: 60px;
-    margin: -30px;
+    width: 50px; height: 50px; margin: -25px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 0.9em;
+    font-size: 0.85em;
     font-weight: bold;
 }
 
 .note-label {
-    background-color: #fff;
-    border: 1px solid #ccc;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    width: 42px; height: 42px;
+    /* ... 其余样式不变 ... */
+    background-color: #fff; border: 1px solid #ccc; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-/* "黑键" 音符的特殊样式 */
 .note[data-is-black-key="true"] .note-label {
-    background-color: #333;
-    color: #fff;
-    border-color: #000;
+    background-color: #333; color: #fff; border-color: #000;
 }
 
-/* 内圈样式 (ID选择器已改为类选择器) */
 .inner-circle {
-    width: 60%;
-    height: 60%;
-    background-color: #e9eef2;
-    border: 1px solid #ccc;
-    transition: transform 0.5s cubic-bezier(0.68, -0.15, 0.27, 1.15); /* 平滑旋转动画 */
+    width: 60%; height: 60%;
+    background-color: #e9eef2; border: 1px solid #ccc; transition: transform 0.5s cubic-bezier(0.68, -0.15, 0.27, 1.15);
 }
 
-/* 内圈上的音级标记 (1-7) */
 .degree {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 40px;
-    height: 40px;
-    margin: -20px;
-    background-color: #ff9800;
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.2em;
-    font-weight: bold;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    width: 32px; height: 32px; margin: -16px;
+    font-size: 1.1em;
+    /* ... 其余样式不变 ... */
+    background-color: #ff9800; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; box-shadow: 0 3px 6px rgba(0,0,0,0.2);
 }
 
-/* 中央调性显示 (ID选择器已改为类选择器) */
 .current-key-display {
     position: absolute;
     top: 50%;
@@ -133,233 +115,176 @@ body {
     transform: translate(-50%, -50%);
     text-align: center;
 }
-
 .key-name {
-    font-size: 1.9em;
-    font-weight: bold;
-    display: block;
-    color: #2c3e50;
+    font-size: 1.6em; font-weight: bold; display: block; color: #2c3e50;
 }
-
 .key-mode {
-    font-size: 1.2em;
-    color: #7f8c8d;
+    font-size: 1.1em; color: #7f8c8d;
 }
 
-/* 控制按钮 */
 .controls {
-    display: flex;
-    gap: 20px;
-    margin-top: 20px;
+    display: flex; gap: 15px; margin-top: 15px;
 }
-
 button {
-    padding: 10px 20px;
-    font-size: 1em;
-    cursor: pointer;
-    border: none;
-    border-radius: 5px;
-    background-color: #3498db;
-    color: white;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-    transition: background-color 0.2s, transform 0.1s;
+    padding: 8px 16px; font-size: 0.9em;
+    /* ... 其余样式不变 ... */
+    cursor: pointer; border: none; border-radius: 5px; background-color: #3498db; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.15); transition: background-color 0.2s, transform 0.1s;
 }
+button:hover { background-color: #2980b9; }
+button:active { transform: translateY(1px); box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
 
-button:hover {
-    background-color: #2980b9;
-}
-
-button:active {
-    transform: translateY(1px);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-}
-
-/* ================================== */
-/* 钢琴键盘新增样式          */
-/* ================================== */
-
+/* --- 钢琴 (可滚动) --- */
 .piano-container {
-    margin-top: 40px;
-    /* 让键盘在小屏幕上可以横向滚动，而不是破坏布局 */
     width: 100%;
-    max-width: 900px; /* 限制最大宽度 */
-    overflow-x: auto;
+    max-width: 90vw; /* 限制最大宽度 */
+    overflow-x: auto; /* 核心：允许水平滚动 */
     padding-bottom: 10px;
 }
-
 .piano {
-    display: flex; /* 让琴键横向排列 */
-    padding: 0;
-    margin: 0 auto; /* 居中显示 */
-    list-style: none;
-    height: 350px; /* 键盘高度 */
-    width: fit-content; /* 宽度由内容决定 */
-    border-radius: 5px;
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2), 0 2px 5px rgba(0,0,0,0.1);
+    display: flex; padding: 0; margin: 0; list-style: none;
+    height: 240px; /* 减小高度 */
+    width: fit-content;
+    border-radius: 5px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
-
 .piano .white {
-    position: relative; /* 作为黑键的定位父元素 */
-    width: 60px;
-    height: 100%;
-    background-color: #fff;
-    border: 1px solid #b3b3b3;
-    border-top: none;
-    box-sizing: border-box; /* 边框不计入宽度 */
-    cursor: pointer;
-    transition: background-color 0.2s ease;
+    width: 45px; /* 减小白键宽度 */
+    /* ... 其余样式不变 ... */
+    position: relative; height: 100%; background-color: #fff; border: 1px solid #b3b3b3; box-sizing: border-box; cursor: pointer; transition: background-color 0.2s ease;
 }
-
-.piano .white:active {
-    background-color: #e0e0e0;
-}
-
 .piano .black {
-    position: absolute;
-    top: 0;
-    /* 定位到白键的右边缘，再向左移动自身宽度的一半 */
-    left: 100%;
-    transform: translateX(-50%);
-    width: 38px;
-    height: 60%; /* 黑键高度是白键的60% */
-    background-color: #2c3e50;
-    border: 2px solid #2c3e50;
-    border-top: none;
-    border-radius: 0 0 4px 4px;
-    box-sizing: border-box;
-    z-index: 10; /* 确保黑键在白键之上 */
-    cursor: pointer;
-    transition: background-color 0.2s ease;
+    width: 28px; /* 减小黑键宽度 */
+    height: 60%;
+    /* ... 其余样式不变 ... */
+    position: absolute; top: 0; left: 100%; transform: translateX(-50%); background-color: #2c3e50; border: 2px solid #2c3e50; border-radius: 0 0 4px 4px; box-sizing: border-box; z-index: 10; cursor: pointer; transition: background-color 0.2s ease;
 }
+.piano .white.highlight { background-color: #6ba5d7; border-color: #5a8fbb; }
+.piano .black.highlight { background-color: rgb(75, 189, 84); border-color: #5a8fbb; }
+.note-name { font-size: 1em; /* ... */ position: absolute; bottom: 10px; width: 100%; text-align: center; color: #a0a0a0; pointer-events: none; }
+.black .note-name { color: #d0d0d0; font-size: 0.9em; }
+.scale-degree { font-size: 1.3em; /* ... */ position: absolute; top: 65%; width: 100%; text-align: center; font-weight: bold; color: #2c3e50; pointer-events: none; display: none; }
+.black .scale-degree { top: 50%; color: #ffffff; }
+.piano .highlight .scale-degree { display: block; }
 
-.piano .black:active {
-    background-color: #4a627a;
-}
 
-/* ========== 关键的高亮样式 ========== */
-
-/* 高亮的白键 */
-.piano .white.highlight {
-    background-color: #6ba5d7; /* 图片中的蓝色 */
-    border-color: #5a8fbb;
-}
-
-/* 高亮的黑键 */
-.piano .black.highlight {
-    background-color: rgb(75, 189, 84);
-    border-color: #5a8fbb;
-}
-
-/* ================================== */
-/* 琴键文字新增样式          */
-/* ================================== */
-
-/* --- 固定的音名 (C, D, E...) --- */
-.note-name {
-    position: absolute;
-    bottom: 10px;
-    width: 100%;
-    text-align: center;
-    font-size: 1.2em;
-    color: #a0a0a0;
-    pointer-events: none; /* 让文字不影响鼠标点击 */
-}
-
-/* 黑键上的音名颜色要亮一些才能看清 */
-.black .note-name {
-    color: #d0d0d0;
-    font-size: 1em;
-}
-
-/* --- 动态的唱名 (1, 2, 3...) --- */
-.scale-degree {
-    position: absolute;
-    top: 65%; /* 放在白键靠下的位置 */
-    width: 100%;
-    text-align: center;
-    font-size: 1.5em;
-    font-weight: bold;
-    color: #2c3e50;
-    pointer-events: none;
-    /* 默认隐藏，有内容时JS会使其显示 */
-    display: none;
-}
-
-/* 黑键上的唱名样式 */
-.black .scale-degree {
-    top: 50%; /* 位置稍作调整 */
-    color: #ffffff;
-}
-
-/* 当琴键被高亮时，显示唱名 */
-.piano .highlight .scale-degree {
-    display: block;
-}
-
-/* ================================== */
-/* 五线谱新增样式 (Bravura 字体版)    */
-/* ================================== */
-
-/* 1. 加载本地字体文件 */
-/* @font-face {
-    font-family: 'Bravura Text';
-    src: url('BravuraText.otf') format('opentype');
-} */
-
+/* --- 五线谱 (缩小) --- */
 @font-face {
-  font-family: 'Bravura';
-  font-style: normal;
-  font-display: swap;
-  font-weight: 400;
-  src: url(./bravura-latin-400-normal.woff2) format('woff2'),
-       url(./bravura-latin-400-normal.woff) format('woff');
+  font-family: 'Bravura'; font-style: normal; font-display: swap; font-weight: 400;
+  src: url(./bravura-latin-400-normal.woff2) format('woff2'), url(./bravura-latin-400-normal.woff) format('woff');
 }
-
-/* 2. 创建一个应用该字体的工具类 */
-.music-font {
-    font-family: 'Bravura'; /* 优先使用 Bravura 字体 */
-    /* font-size 将由父级 .staff-wrapper 控制 */
-}
-
-/* 3. 五线谱容器和整体布局 */
 #key-signature-container {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 30px; /* 增加谱子之间的间距 */
-    row-gap: 90px;
-    margin-top: 70px;
+    flex-direction: column; /* 移动端让高低音谱号垂直排列 */
+    align-items: center;
+    gap: 10px;
     width: 100%;
-    max-width: 900px;
 }
-
 .staff-wrapper {
     position: relative;
-    width: 400px;
-    height: 4em; /* 关键：高度是4倍的基准字体大小，代表五线谱四间的高度 */
-    /* 关键：使用 font-size 作为控制所有元素尺寸的唯一基准 */
-    font-size: 30px; 
+    width: clamp(280px, 90vw, 400px); /* 响应式宽度 */
+    height: 4em;
+    font-size: 20px; /* 关键：减小字体基准来缩小整个组件 */
     color: #000;
-    transform: scale(0.8);
+    margin-bottom: 80px;
 }
-
-/* 4. 五线谱的五条线 */
 .staff-line {
-    position: absolute;
-    left: 0;
-    width: 100%;
-    height: 1.5px; /* 线条粗细 */
-    background-color: #000;
+    position: absolute; left: 0; width: 100%; height: 1.5px; background-color: #000;
 }
-
-/* 5. 谱号和升降号的样式 */
 .clef, .accidental {
     font-family: 'Bravura', serif !important;
     position: absolute;
     line-height: 1;
-        /* 新增下面这两行 */
     display: flex;
     align-items: center;
-    transform: translateY(-1.7em);
+    transform: translateY(-1.7em); /* 保留视觉校准 */
+}
+
+
+/* ======================================================= */
+/* ====== 桌面端布局 (>= 768px) Media Query ====== */
+/* ======================================================= */
+/* ======================================================= */
+/* ====== 桌面端布局 (>= 768px) -  三行结构版 ====== */
+/* ======================================================= */
+@media (min-width: 768px) {
+    body {
+        justify-content: center;
+    }
+
+    /* 1. 只让顶部的音阶圈容器变为水平排列 */
+    .main-container {
+        flex-direction: row;
+        justify-content: center;
+        gap: 40px;
+    }
+
+    /* 2. 底部容器保持垂直堆叠，并调整垂直间距 */
+    .bottom-container {
+        gap: 40px;
+    }
+    
+    /* 3. 为桌面端的钢琴和五线谱设置更合适的宽度 */
+    .piano-container {
+        max-width: 800px; /* 钢琴可以更宽一些 */
+    }
+
+    #key-signature-container {
+        justify-content: center; /* 让内部的谱号居中 */
+    }
+
+    /* 4. 恢复/调整桌面端组件的“尺寸” (这部分和之前一样) */
+
+    /* --- 音阶圈 --- */
+    .circle-widget h2 { font-size: 1.5em; }
+    .circle-container {
+        width: 380px;
+    }
+    .note { width: 60px; height: 60px; margin: -30px; font-size: 0.9em;}
+    .note-label { width: 50px; height: 50px; }
+    .degree { width: 40px; height: 40px; margin: -20px; font-size: 1.2em; }
+    .key-name { font-size: 1.9em; }
+    .key-mode { font-size: 1.2em; }
+    .controls button { padding: 10px 20px; font-size: 1em; }
+
+    /* --- 钢琴 --- */
+    .piano { height: 280px; }
+    .piano .white { width: 50px; }
+    .piano .black { width: 32px; }
+    .note-name { font-size: 1.2em; }
+    .scale-degree { font-size: 1.5em; }
+
+    /* --- 五线谱 --- */
+    #key-signature-container {
+        flex-direction: row;
+        gap: 20px;
+    }
+    .staff-wrapper {
+        font-size: 28px;
+        width: 320px;
+    }
+}
+
+/* ======================================================= */
+/* ====== 五线谱重叠问题修正 (V4 Layout) ====== */
+/* ======================================================= */
+
+/* --- 为新的 "谱组" 容器 (.key-signature-pair) 添加样式 --- */
+.key-signature-pair {
+    display: flex;
+    flex-direction: column; /* 默认垂直排列高低音谱号 */
+    align-items: center;
+    gap: 0; /* 高低音谱号之间不需要额外间距 */
+}
+
+/* --- 调整主容器 (#key-signature-container) 的默认 (移动端) 样式 --- */
+#key-signature-container {
+    gap: 30px; /* 设置 "谱组" 之间的垂直间距 */
+}
+
+/* --- 调整主容器的桌面端样式 --- */
+@media (min-width: 768px) {
+    #key-signature-container {
+        flex-direction: row; /* 在桌面端让多个 "谱组" 水平排列 */
+        align-items: center;
+        gap: 30px; /* 设置 "谱组" 之间的水平间距 */
+    }
 }

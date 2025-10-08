@@ -318,21 +318,34 @@ function addKeySignature(staffWrapper, clefType, accidentalType, count) {
     }
     }
 
-  function updateKeySignatureDisplay() {
+// script.js
+
+function updateKeySignatureDisplay() {
     keySigContainer.innerHTML = "";
     const signatures = KEY_SIGNATURE_DATA[currentStep];
     if (!signatures) return;
+
+    // 对每一个调号记法 (例如 sharp 和 flat) 进行循环
     Object.values(signatures).forEach((sig) => {
-      if (sig) {
-        const trebleStaff = createStaff("treble");
-        addKeySignature(trebleStaff, "treble", sig.type, sig.count);
-        keySigContainer.appendChild(trebleStaff);
-        const bassStaff = createStaff("bass");
-        addKeySignature(bassStaff, "bass", sig.type, sig.count);
-        keySigContainer.appendChild(bassStaff);
-      }
+        if (sig) {
+            // 1. 为每一对高低音谱号创建一个包裹容器
+            const pairContainer = document.createElement("div");
+            pairContainer.className = "key-signature-pair";
+
+            // 2. 创建高音和低音谱号，并添加到 "谱组" 容器中
+            const trebleStaff = createStaff("treble");
+            addKeySignature(trebleStaff, "treble", sig.type, sig.count);
+            pairContainer.appendChild(trebleStaff);
+
+            const bassStaff = createStaff("bass");
+            addKeySignature(bassStaff, "bass", sig.type, sig.count);
+            pairContainer.appendChild(bassStaff);
+
+            // 3. 将完整的 "谱组" 容器添加到主容器中
+            keySigContainer.appendChild(pairContainer);
+        }
     });
-  }
+}
 
   // =====================================================================
   // =================== 3. 主更新与事件处理 ===========================
