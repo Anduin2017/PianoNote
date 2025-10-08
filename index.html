@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交互式音阶圈</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="circle-container">
+        <div id="outer-circle">
+        </div>
+        <div id="inner-circle">
+            <div id="current-key-display">
+                <span id="key-name">C</span>
+                <span id="key-mode">Major</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="rotate-left">⟲ 向左转</button>
+        <button id="rotate-right">向右转 ⟳</button>
+    </div>
+
+    <div class="piano-container">
+        <ul class="piano">
+            <li class="white" data-note="C">
+                <span class="note-name">C</span>
+                <span class="scale-degree"></span>
+                <div class="black" data-note="C#">
+                    <span class="note-name">C♯</span>
+                    <span class="scale-degree"></span>
+                </div>
+            </li>
+            <li class="white" data-note="D">
+                <span class="note-name">D</span>
+                <span class="scale-degree"></span>
+                <div class="black" data-note="D#">
+                    <span class="note-name">D♯</span>
+                    <span class="scale-degree"></span>
+                </div>
+            </li>
+            <li class="white" data-note="E">
+                <span class="note-name">E</span>
+                <span class="scale-degree"></span>
+            </li>
+            <li class="white" data-note="F">
+                <span class="note-name">F</span>
+                <span class="scale-degree"></span>
+                <div class="black" data-note="F#">
+                    <span class="note-name">F♯</span>
+                    <span class="scale-degree"></span>
+                </div>
+            </li>
+            <li class="white" data-note="G">
+                <span class="note-name">G</span>
+                <span class="scale-degree"></span>
+                <div class="black" data-note="G#">
+                    <span class="note-name">G♯</span>
+                    <span class="scale-degree"></span>
+                </div>
+            </li>
+            <li class="white" data-note="A">
+                <span class="note-name">A</span>
+                <span class="scale-degree"></span>
+                <div class="black" data-note="A#">
+                    <span class="note-name">A♯</span>
+                    <span class="scale-degree"></span>
+                </div>
+            </li>
+            <li class="white" data-note="B">
+                <span class="note-name">B</span>
+                <span class="scale-degree"></span>
+            </li>
+            <li class="white" data-note="C2">
+                <span class="note-name">C</span>
+                <span class="scale-degree"></span>
+                <div class="black" data-note="C#2">
+                    <span class="note-name">C♯</span>
+                    <span class="scale-degree"></span>
+                </div>
+            </li>
+            <li class="white" data-note="D2">
+                <span class="note-name">D</span>
+                <span class="scale-degree"></span>
+                <div class="black" data-note="D#2">
+                    <span class="note-name">D♯</span>
+                    <span class="scale-degree"></span>
+                </div>
+            </li>
+            <li class="white" data-note="E2">
+                <span class="note-name">E</span>
+                <span class="scale-degree"></span>
+            </li>
+            <li class="white" data-note="F2">
+                <span class="note-name">F</span>
+                <span class="scale-degree"></span>
+                <div class="black" data-note="F#2">
+                    <span class="note-name">F♯</span>
+                    <span class="scale-degree"></span>
+                </div>
+            </li>
+            <li class="white" data-note="G2">
+                <span class="note-name">G</span>
+                <span class="scale-degree"></span>
+                <div class="black" data-note="G#2">
+                    <span class="note-name">G♯</span>
+                    <span class="scale-degree"></span>
+                </div>
+            </li>
+            <li class="white" data-note="A2">
+                <span class="note-name">A</span>
+                <span class="scale-degree"></span>
+                <div class="black" data-note="A#2">
+                    <span class="note-name">A♯</span>
+                    <span class="scale-degree"></span>
+                </div>
+            </li>
+            <li class="white" data-note="B2">
+                <span class="note-name">B</span>
+                <span class="scale-degree"></span>
+            </li>
+        </ul>
+    </div>
+
+    <div id="key-signature-container">
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
