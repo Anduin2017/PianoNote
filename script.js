@@ -36,6 +36,9 @@ document.addEventListener("DOMContentLoaded", () => {
     "B",
   ];
 
+  // 因为五线谱和钢琴都需要显示调名，所以定义一个专用的显示名称数组
+  // 钢琴一共只有 15 个大调。
+  // Cb, Gb, Db, Ab, Eb, Bb, F, C, G, D, A, E, B, F#, C#
   const keyDisplayNames = [
     'C',        // 0
     'C♯ / D♭', // 1
@@ -58,9 +61,9 @@ document.addEventListener("DOMContentLoaded", () => {
         2: { sharp: { type: 'sharps', count: 2 } }, // D
         9: { sharp: { type: 'sharps', count: 3 } }, // A
         4: { sharp: { type: 'sharps', count: 4 } }, // E
-        11: { sharp: { type: 'sharps', count: 5 }, flat: { type: 'flats', count: 7 } }, // B/Cb
-        6: { sharp: { type: 'sharps', count: 6 }, flat: { type: 'flats', count: 6 } }, // F#/Gb
-        1: { sharp: { type: 'sharps', count: 7 }, flat: { type: 'flats', count: 5 } }, // C#/Db
+        11: { sharp: { type: 'sharps', count: 5 }, flat: { type: 'flats', count: 7 } }, // B/Cb，这是同音异名
+        6: { sharp: { type: 'sharps', count: 6 }, flat: { type: 'flats', count: 6 } }, // F#/Gb，这是同音异名
+        1: { sharp: { type: 'sharps', count: 7 }, flat: { type: 'flats', count: 5 } }, // C#/Db，这是同音异名
         5: { flat: { type: 'flats', count: 1 } }, // F
         10: { flat: { type: 'flats', count: 2 } }, // Bb
         3: { flat: { type: 'flats', count: 3 } }, // Eb
@@ -89,6 +92,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- 全局状态 ---
   let currentStep = 0;
+    let chromaticVisualAngle = 0; // 【新增】追踪半音阶圈的视觉角度
+    let fifthsVisualAngle = 0;    // 【新增】追踪五度圈的视觉角度
 
   // --- DOM 元素获取 ---
   const chromaticOuterCircle = document.getElementById(
@@ -304,50 +309,56 @@ document.addEventListener("DOMContentLoaded", () => {
   // =====================================================================
   // =================== 3. 主更新与事件处理 ===========================
   // =====================================================================
-  function update() {
-    const chromaticRotationAngle = currentStep * 30;
-    const fifthsIndex = circleOfFifthsOrder.indexOf(currentStep);
-    const fifthsRotationAngle = fifthsIndex * 30;
+function update() {
+    // 【修改】直接应用视觉角度变量，不再进行计算
+    chromaticInnerCircle.style.transform = `translate(-50%, -50%) rotate(${chromaticVisualAngle}deg)`;
+    fifthsInnerCircle.style.transform = `translate(-50%, -50%) rotate(${fifthsVisualAngle}deg)`;
 
-    chromaticInnerCircle.style.transform = `translate(-50%, -50%) rotate(${chromaticRotationAngle}deg)`;
-    fifthsInnerCircle.style.transform = `translate(-50%, -50%) rotate(${fifthsRotationAngle}deg)`;
-
-    // ... in update function
-    const centerTextElements = document.querySelectorAll(
-      ".current-key-display"
-    );
-    // 【修正】同时应用居中和反向旋转
-    centerTextElements[0].style.transform = `translate(-50%, -50%) rotate(${-chromaticRotationAngle}deg)`;
-    centerTextElements[1].style.transform = `translate(-50%, -50%) rotate(${-fifthsRotationAngle}deg)`;
-    // ...
+    const centerTextElements = document.querySelectorAll(".current-key-display");
+    centerTextElements[0].style.transform = `translate(-50%, -50%) rotate(${-chromaticVisualAngle}deg)`;
+    centerTextElements[1].style.transform = `translate(-50%, -50%) rotate(${-fifthsVisualAngle}deg)`;
 
     document
       .querySelectorAll(".key-name")
       .forEach((display) => (display.textContent = keyDisplayNames[currentStep]));
 
-
-    // --- 【调用】激活钢琴和五线谱的更新 ---
     updatePianoHighlight();
     updateKeySignatureDisplay();
-  }
+}
 
   // --- 事件处理 (无需改动) ---
-  chromaticRightBtn.addEventListener("click", () => {
+// --- 【修改】重写事件处理，以控制动画方向并保持同步 ---
+chromaticRightBtn.addEventListener("click", () => {
     currentStep = (currentStep + 1) % 12;
+    chromaticVisualAngle += 30; // 累加角度
+    // 同步更新五度圈的角度
+    fifthsVisualAngle = circleOfFifthsOrder.indexOf(currentStep) * 30;
     update();
-  });
-  chromaticLeftBtn.addEventListener("click", () => {
+});
+
+chromaticLeftBtn.addEventListener("click", () => {
     currentStep = (currentStep - 1 + 12) % 12;
+    chromaticVisualAngle -= 30; // 累减角度
+    // 同步更新五度圈的角度
+    fifthsVisualAngle = circleOfFifthsOrder.indexOf(currentStep) * 30;
     update();
-  });
-  fifthsRightBtn.addEventListener("click", () => {
+});
+
+fifthsRightBtn.addEventListener("click", () => {
     currentStep = (currentStep + 7) % 12;
+    fifthsVisualAngle += 30; // 累加角度
+    // 同步更新半音阶圈的角度
+    chromaticVisualAngle = currentStep * 30;
     update();
-  });
-  fifthsLeftBtn.addEventListener("click", () => {
+});
+
+fifthsLeftBtn.addEventListener("click", () => {
     currentStep = (currentStep - 7 + 12) % 12;
+    fifthsVisualAngle -= 30; // 累减角度
+    // 同步更新半音阶圈的角度
+    chromaticVisualAngle = currentStep * 30;
     update();
-  });
+});
 
   // =====================================================================
   // =================== 4. 初始化 =======================================
