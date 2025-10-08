@@ -74,13 +74,13 @@ document.addEventListener("DOMContentLoaded", () => {
             // F#, C#, G#, D#, A#, E#, B#
             sharps: [0, 1.5, -0.5, 1, 2.5, 0.5, 2],
             // Bb, Eb, Ab, Db, Gb, Cb, Fb
-            flats:  [2, 0.5, 2.5, 1, 3.5, 3, 1.5],
+            flats:  [2, 0.5, 2.5, 1, 3, 1.5, 3.5],
         },
         bass: {
             // F#, C#, G#, D#, A#, E#, B#
             sharps: [1, 2.5, 0.5, 2, 3.5, 1.5, 3],
             // Bb, Eb, Ab, Db, Gb, Cb, Fb
-            flats:  [3, 1.5, 3.5, 2, 0.5, 4, 2.5],
+            flats:  [3, 1.5, 3.5, 2, 4, 2.5, 4.5],
         },
     };
 

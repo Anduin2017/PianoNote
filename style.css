@@ -328,14 +328,15 @@ button:active {
     flex-wrap: wrap;
     justify-content: center;
     gap: 30px; /* 增加谱子之间的间距 */
-    margin-top: 60px;
+    row-gap: 90px;
+    margin-top: 70px;
     width: 100%;
-    max-width: 1300px;
+    max-width: 900px;
 }
 
 .staff-wrapper {
     position: relative;
-    width: 320px;
+    width: 400px;
     height: 4em; /* 关键：高度是4倍的基准字体大小，代表五线谱四间的高度 */
     /* 关键：使用 font-size 作为控制所有元素尺寸的唯一基准 */
     font-size: 30px; 
