@@ -74,7 +74,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 1.1em;
+    font-size: 0.9em;
     font-weight: bold;
 }
 
@@ -356,6 +356,8 @@ button:active {
     font-family: 'Bravura', serif !important;
     position: absolute;
     line-height: 1;
-    /* 新增下面这一行，对所有升降号进行垂直矫正 */
-    transform: translateY(0.65em);
+        /* 新增下面这两行 */
+    display: flex;
+    align-items: center;
+    transform: translateY(-1.7em);
 }

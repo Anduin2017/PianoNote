@@ -69,16 +69,20 @@ document.addEventListener("DOMContentLoaded", () => {
         3: { flat: { type: 'flats', count: 3 } }, // Eb
         8: { flat: { type: 'flats', count: 4 } }, // Ab
     };
-  const ACCIDENTAL_POSITIONS = {
-    treble: {
-      sharps: [0, 2.5, -0.5, 2, 3.5, 1.5, 3], // F#, C#, G#, D#, A#, E#, B#
-      flats: [2, 0.5, 2.5, 1, 3, 1.5, 3.5], // Bb, Eb, Ab, Db, Gb, Cb, Fb
-    },
-    bass: {
-      sharps: [2, 0.5, 2.5, 1, 3.5, 1.5, 3], // F#, C#, G#, D#, A#, E#, B#
-      flats: [1, 2.5, 0.5, 2, 3.5, 1.5, 3], // Bb, Eb, Ab, Db, Gb, Cb, Fb
-    },
-  };
+    const ACCIDENTAL_POSITIONS = {
+        treble: {
+            // F#, C#, G#, D#, A#, E#, B#
+            sharps: [0, 1.5, -0.5, 1, 2.5, 0.5, 2],
+            // Bb, Eb, Ab, Db, Gb, Cb, Fb
+            flats:  [2, 0.5, 2.5, 1, 3.5, 3, 1.5],
+        },
+        bass: {
+            // F#, C#, G#, D#, A#, E#, B#
+            sharps: [1, 2.5, 0.5, 2, 3.5, 1.5, 3],
+            // Bb, Eb, Ab, Db, Gb, Cb, Fb
+            flats:  [3, 1.5, 3.5, 2, 0.5, 4, 2.5],
+        },
+    };
 
   const fifthsMajorScaleDegreePositions = [
     circleOfFifthsOrder.indexOf(0),
@@ -256,39 +260,63 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- 【移植】五线谱绘制相关函数 ---
-  function createStaff(clefType) {
+// script.js
+// 修改后的 createStaff 函数
+function createStaff(clefType) {
     const wrapper = document.createElement("div");
     wrapper.className = "staff-wrapper";
     for (let i = 0; i < 5; i++) {
-      const line = document.createElement("div");
-      line.className = "staff-line";
-      line.style.top = `${i}em`;
-      wrapper.appendChild(line);
+        const line = document.createElement("div");
+        line.className = "staff-line";
+        line.style.top = `${i}em`;
+        wrapper.appendChild(line);
     }
-    const clefEl = document.createElement("span");
-    clefEl.className = "clef";
-    clefEl.textContent = clefType === "treble" ? "\uE050" : "\uE062";
-    clefEl.style.fontSize = "4em";
-    clefEl.style.top = clefType === "treble" ? "0em" : "1em";
-    clefEl.style.left = "5px";
-    wrapper.appendChild(clefEl);
-    return wrapper;
-  }
 
-  function addKeySignature(staffWrapper, clefType, accidentalType, count) {
+    // --- 开始修改 ---
+    // 1. 创建外层 span 用于定位谱号
+    const clefPositioner = document.createElement("span");
+    clefPositioner.className = "clef";
+    clefPositioner.style.top = clefType === "treble" ? "2.7em" : "0.7em";
+    clefPositioner.style.left = "5px";
+
+    // 2. 创建内层 span 用于显示和缩放谱号
+    const clefGlyph = document.createElement("span");
+    clefGlyph.textContent = clefType === "treble" ? "\uE050" : "\uE062";
+    clefGlyph.style.fontSize = "4em"; // 谱号的字体大小
+
+    // 3. 组装
+    clefPositioner.appendChild(clefGlyph);
+    wrapper.appendChild(clefPositioner);
+    // --- 结束修改 ---
+
+    return wrapper;
+}
+
+// 修改后的 addKeySignature 函数
+function addKeySignature(staffWrapper, clefType, accidentalType, count) {
     if (count === 0) return;
     const positions = ACCIDENTAL_POSITIONS[clefType][accidentalType];
+    const symbolText = accidentalType === "sharps" ? "\uE262" : "\uE260";
+
     for (let i = 0; i < count; i++) {
-      const accidentalEl = document.createElement("span");
-      accidentalEl.className = "accidental";
-      accidentalEl.textContent =
-        accidentalType === "sharps" ? "\uE262" : "\uE260";
-      accidentalEl.style.fontSize = "2.5em";
-      accidentalEl.style.top = `${positions[i]}em`;
-      accidentalEl.style.left = `${50 + i * 18}px`;
-      staffWrapper.appendChild(accidentalEl);
+        // 1. 创建外层 span 用于定位
+        const positionerEl = document.createElement("span");
+        positionerEl.className = "accidental"; // 应用 .accidental 的 position, font-family 等
+        positionerEl.style.top = `${positions[i]}em`;
+        positionerEl.style.left = `${100 + i * 24}px`;
+
+        // 2. 创建内层 span 用于显示和缩放符号
+        const glyphEl = document.createElement("span");
+        glyphEl.textContent = symbolText;
+        glyphEl.style.fontSize = "3.5em";
+        // 注意：这里的 2.5em 会继承外层元素的 font-size (30px)，
+        // 但由于定位是在外层完成的，所以不会影响 top 的计算。
+
+        // 3. 组装：将内层放入外层，再将外层放入五线谱
+        positionerEl.appendChild(glyphEl);
+        staffWrapper.appendChild(positionerEl);
     }
-  }
+    }
 
   function updateKeySignatureDisplay() {
     keySigContainer.innerHTML = "";
