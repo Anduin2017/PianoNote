@@ -1,6 +1,6 @@
 # Piano note calculator
 
-[![ManHours](https://manhours.aiursoft.cn/r/gitlab.aiursoft.com/anduin/pianonote.svg)](https://gitlab.aiursoft.com/anduin/pianonote/-/commits/master?ref_type=heads)
+[![ManHours](https://manhours.aiursoft.com/r/gitlab.aiursoft.com/anduin/pianonote.svg)](https://gitlab.aiursoft.com/anduin/pianonote/-/commits/master?ref_type=heads)
 
 ![screenshot](./screenshot.png)
 
