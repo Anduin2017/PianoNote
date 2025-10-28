@@ -1,4 +1,4 @@
-FROM hub.aiursoft.cn/aiursoft/static
+FROM hub.aiursoft.com/aiursoft/static
 COPY . /data
 
 EXPOSE 5000
